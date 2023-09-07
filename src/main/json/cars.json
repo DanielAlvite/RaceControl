@@ -1,0 +1,39 @@
+{
+  "garajes": [
+    {
+      "nombre": "Garaje A",
+      "coches": [
+        { "marca": "Toyota", "modelo": "Corolla" },
+        { "marca": "Honda", "modelo": "Civic" }
+      ]
+    },
+    {
+      "nombre": "Garaje B",
+      "coches": [
+        { "marca": "Ford", "modelo": "Focus" },
+        { "marca": "Chevrolet", "modelo": "Cruze" }
+      ]
+    },
+    {
+      "nombre": "Garaje C",
+      "coches": [
+        { "marca": "Volkswagen", "modelo": "Jetta" },
+        { "marca": "Nissan", "modelo": "Altima" }
+      ]
+    },
+    {
+      "nombre": "Garaje D",
+      "coches": [
+        { "marca": "BMW", "modelo": "3 Series" },
+        { "marca": "Audi", "modelo": "A4" }
+      ]
+    },
+    {
+      "nombre": "Garaje E",
+      "coches": [
+        { "marca": "Mercedes-Benz", "modelo": "C-Class" },
+        { "marca": "Lexus", "modelo": "ES" }
+      ]
+    }
+  ]
+}

@@ -1,19 +1,16 @@
 package org.campusdual;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Race {
-    @JsonProperty("nombre")
     private String name;
-
-    @JsonProperty("duracionMinutos")
     private int durationMinutes;
-
     private List<Garage> garages;
 
-    public Race(String name, int durationMinutes) {
+    public Race(@JsonProperty("nombre") String name,
+                @JsonProperty("duracionMinutos") int durationMinutes) {
         this.name = name;
         this.durationMinutes = durationMinutes;
         this.garages = new ArrayList<>();
@@ -21,6 +18,10 @@ public class Race {
 
     public void addGarage(Garage garage) {
         garages.add(garage);
+    }
+
+    public String getName() {
+        return name;
     }
 
     public void startRace() {
@@ -39,9 +40,8 @@ public class Race {
             podium.addAll(cars);
         }
 
-        podium.sort((car1, car2) -> Integer.compare(car2.getDistanceTraveled(), car1.getDistanceTraveled()));
+        podium.sort(Comparator.comparingInt(Car::getDistanceTraveled).reversed());
 
         return podium.subList(0, Math.min(podium.size(), 3));
     }
 }
-

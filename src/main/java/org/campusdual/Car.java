@@ -1,5 +1,6 @@
 package org.campusdual;
 import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Random;
 
 public class Car {
@@ -9,12 +10,21 @@ public class Car {
     private int distanceTraveled;
     private int points;
 
-    public Car(String brand, String model, String garageSticker) {
+    public Car(@JsonProperty("brand") String brand,
+               @JsonProperty("model") String model,
+               @JsonProperty("garageSticker") String garageSticker) {
         this.brand = brand;
         this.model = model;
         this.garageSticker = garageSticker;
         this.distanceTraveled = 0;
         this.points = 0;
+    }
+    public String getBrand() {
+        return brand;
+    }
+
+    public String getModel() {
+        return model;
     }
 
     public String getGarageSticker() {

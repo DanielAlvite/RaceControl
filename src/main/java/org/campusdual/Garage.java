@@ -2,6 +2,7 @@ package org.campusdual;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+
 public class Garage {
     private String name;
     private List<Car> cars;
@@ -17,6 +18,10 @@ public class Garage {
 
     public List<Car> getCars() {
         return cars;
+    }
+
+    public void addCar(Car car) {
+        cars.add(car);
     }
 
     public void removeCar(Car car) {

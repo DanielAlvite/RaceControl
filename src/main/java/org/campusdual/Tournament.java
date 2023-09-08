@@ -8,15 +8,21 @@ public class Tournament {
     private String name;
     private int numRaces;
     private List<Garage> garages;
+    private List<Race> races;
 
     public Tournament(String name, int numRaces) {
         this.name = name;
         this.numRaces = numRaces;
         this.garages = new ArrayList<>();
+        this.races = new ArrayList<>();
     }
 
     public void addGarages(List<Garage> garages) {
         this.garages.addAll(garages);
+    }
+
+    public void addRaces(List<Race> races) {
+        this.races.addAll(races);
     }
 
     public void simulateTournament() {
@@ -34,6 +40,10 @@ public class Tournament {
         }
         tournamentResults.sort((car1, car2) -> car2.getPoints() - car1.getPoints());
         return tournamentResults;
+    }
+
+    public String getName() {
+        return name;
     }
 
     private void addRandomGarageToRace(Race race) {

@@ -26,17 +26,19 @@ public class Main {
             System.out.println("*                  CUSTOM TEAM                       *");
             System.out.println("*                  1. Create Garage                  *");
             System.out.println("*                  2. Create Car                     *");
-            System.out.println("*                  3. Show Teams                     *");
+            System.out.println("*                  3. Delete Garage                  *");
+            System.out.println("*                  4. Delete Car                     *");
+            System.out.println("*                  5. Show Teams                     *");
             System.out.println("*                                                    *");
             System.out.println("*                  RACING MODE                       *");
-            System.out.println("*                  4. Create Race                    *");
-            System.out.println("*                  5. Start Race                     *");
+            System.out.println("*                  6. Create Race                    *");
+            System.out.println("*                  7. Start Race                     *");
             System.out.println("*                                                    *");
             System.out.println("*                  TOURNAMENT MODE                   *");
-            System.out.println("*                  6. Create Tournament              *");
-            System.out.println("*                  7. Start Tournament               *");
+            System.out.println("*                  8. Create Tournament              *");
+            System.out.println("*                  9. Start Tournament               *");
             System.out.println("*                                                    *");
-            System.out.println("*                  8.SAVE AND EXIT                   *");
+            System.out.println("*                  10.SAVE AND EXIT                  *");
             System.out.println("*                                                    *");
             System.out.println("******************************************************");
 
@@ -108,6 +110,57 @@ public class Main {
 
                 case 3:
                     if (!garages.isEmpty()) {
+                        System.out.println("Select a garage to remove a car from:");
+                        for (int i = 0; i < garages.size(); i++) {
+                            System.out.println(i + ". " + garages.get(i).getName());
+                        }
+
+                        int selectedGarageIndex = scanner.nextInt();
+                        scanner.nextLine(); // Consume newline
+
+                        if (selectedGarageIndex >= 0 && selectedGarageIndex < garages.size()) {
+                            Garage selectedGarage = garages.get(selectedGarageIndex);
+
+                            if (!selectedGarage.getCars().isEmpty()) {
+                                System.out.println("Select a car to remove:");
+                                List<Car> carsInGarage = selectedGarage.getCars();
+                                for (int i = 0; i < carsInGarage.size(); i++) {
+                                    System.out.println(i + ". " + carsInGarage.get(i).getBrand() + " " + carsInGarage.get(i).getModel());
+                                }
+
+                                int selectedCarIndex = scanner.nextInt();
+                                scanner.nextLine();
+
+                                if (selectedCarIndex >= 0 && selectedCarIndex < carsInGarage.size()) {
+                                    Car selectedCar = carsInGarage.get(selectedCarIndex);
+                                    selectedGarage.removeCar(selectedCar);
+                                    System.out.println("Car removed from garage.");
+                                } else {
+                                    System.out.println("Invalid car selection.");
+                                }
+                            } else {
+                                System.out.println("No cars in this garage.");
+                            }
+                        } else {
+                            System.out.println("Invalid garage selection.");
+                        }
+                    } else {
+                        System.out.println("No garages available. Create a garage first.");
+                    }
+                    break;
+
+                case 4:
+                    if (!garages.isEmpty()) {
+                        System.out.println("Enter the name of the garage to remove:");
+                        String garageNameToRemove = scanner.nextLine();
+                        removeGarage(garages, garageNameToRemove);
+                    } else {
+                        System.out.println("No garages available to remove.");
+                    }
+                    break;
+
+                case 5:
+                    if (!garages.isEmpty()) {
                         System.out.println("List of Garages:");
                         for (Garage garage : garages) {
                             System.out.println("Garage: " + garage.getName());
@@ -127,7 +180,7 @@ public class Main {
                     }
                     break;
 
-                case 4:
+                case 6:
                     if (!garages.isEmpty() && !cars.isEmpty()) {
                         System.out.println("Enter the name of the race:");
                         String raceName = scanner.nextLine();
@@ -140,7 +193,7 @@ public class Main {
                     }
                     break;
 
-                case 5:
+                case 7:
                     if (!races.isEmpty()) {
                         System.out.println("Enter the index of the race you want to start:");
                         int raceIndex = scanner.nextInt();
@@ -158,7 +211,7 @@ public class Main {
                     }
                     break;
 
-                case 6:
+                case 8:
                     if (!races.isEmpty()) {
                         Tournament selectedTournament = tournaments.get(tournaments.size() - 1);
                         selectedTournament.simulateTournament();
@@ -168,7 +221,7 @@ public class Main {
                     }
                     break;
 
-                case 7:
+                case 9:
                     if (!races.isEmpty()) {
                         System.out.println("Enter the name of the tournament:");
                         String tournamentName = scanner.nextLine();
@@ -181,13 +234,12 @@ public class Main {
                     }
                     break;
 
-                case 8:
+                case 10:
                     saveToJSON(garages, cars);
                     System.out.println("Exiting the program.");
                     scanner.close();
                     System.exit(0);
                     break;
-
 
                 default:
                     System.out.println("Invalid choice. Please select a valid option.");
@@ -322,14 +374,24 @@ public class Main {
         return null;
     }
 
-    private static Garage findGarageByName(Set<Garage> garages, String garageName) {
+    private static void removeGarage(List<Garage> garages, String garageName) {
+        Garage garageToRemove = null;
+
         for (Garage garage : garages) {
-            if (garage.getName().equals(garageName)) {
-                return garage;
+            if (garage.getName().equalsIgnoreCase(garageName)) {
+                garageToRemove = garage;
+                break;
             }
         }
-        return null; // Garage not found
+
+        if (garageToRemove != null) {
+            garages.remove(garageToRemove);
+            System.out.println("Garage " + garageName + " removed.");
+        } else {
+            System.out.println("Garage " + garageName + " not found.");
+        }
     }
+
 
     private static void addRandomGarageToRace(Race race, Set<Garage> garages) {
         if (!garages.isEmpty()) {

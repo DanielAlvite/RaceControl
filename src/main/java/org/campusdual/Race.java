@@ -10,7 +10,7 @@ public class Race {
     private List<Garage> garages;
 
     public Race(@JsonProperty("nombre") String name,
-                @JsonProperty("duracionMinutos") int durationMinutes) {
+                @JsonProperty("duracionMinutos") int durationMinutes, List<Car> participants) {
         this.name = name;
         this.durationMinutes = durationMinutes;
         this.garages = new ArrayList<>();

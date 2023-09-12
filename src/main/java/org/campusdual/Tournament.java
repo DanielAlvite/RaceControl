@@ -9,6 +9,7 @@ public class Tournament {
     private int numRaces;
     private List<Garage> garages;
     private List<Race> races;
+    private List<Car> participants;
 
     public Tournament(String name, int numRaces) {
         this.name = name;
@@ -27,7 +28,7 @@ public class Tournament {
 
     public void simulateTournament() {
         for (int i = 0; i < numRaces; i++) {
-            Race race = new Race("Race " + (i + 1), 180); // Carrera estándar de 3 horas
+            Race race = new Race("Race " + (i + 1), 180, participants);
             addRandomGarageToRace(race);
             race.startRace();
         }

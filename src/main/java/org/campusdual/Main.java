@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+
 public class Main {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
@@ -16,6 +17,8 @@ public class Main {
         List<Car> cars = new ArrayList<>();
         List<Race> races = new ArrayList<>();
         List<Tournament> tournaments = new ArrayList<>();
+        Map<String, List<Car>> raceParticipants = new HashMap<>();
+        Map<String, Race> createdRaces = new HashMap<>();
         loadFromJSON(garages, cars);
 
         while (true) {
@@ -110,13 +113,23 @@ public class Main {
 
                 case 3:
                     if (!garages.isEmpty()) {
+                        System.out.println("Enter the name of the garage to remove:");
+                        String garageNameToRemove = scanner.nextLine();
+                        removeGarage(garages, garageNameToRemove);
+                    } else {
+                        System.out.println("No garages available to remove.");
+                    }
+                    break;
+
+                case 4:
+                    if (!garages.isEmpty()) {
                         System.out.println("Select a garage to remove a car from:");
                         for (int i = 0; i < garages.size(); i++) {
                             System.out.println(i + ". " + garages.get(i).getName());
                         }
 
                         int selectedGarageIndex = scanner.nextInt();
-                        scanner.nextLine(); // Consume newline
+                        scanner.nextLine();
 
                         if (selectedGarageIndex >= 0 && selectedGarageIndex < garages.size()) {
                             Garage selectedGarage = garages.get(selectedGarageIndex);
@@ -149,19 +162,9 @@ public class Main {
                     }
                     break;
 
-                case 4:
-                    if (!garages.isEmpty()) {
-                        System.out.println("Enter the name of the garage to remove:");
-                        String garageNameToRemove = scanner.nextLine();
-                        removeGarage(garages, garageNameToRemove);
-                    } else {
-                        System.out.println("No garages available to remove.");
-                    }
-                    break;
-
                 case 5:
                     if (!garages.isEmpty()) {
-                        System.out.println("List of Garages:");
+                        System.out.println("---------List of Garages------------");
                         for (Garage garage : garages) {
                             System.out.println("Garage: " + garage.getName());
 
@@ -171,6 +174,7 @@ public class Main {
                                 for (Car car : carsInGarage) {
                                     System.out.println("- Car: " + car.getBrand() + " " + car.getModel());
                                 }
+                                System.out.println("-----------------------------------");
                             } else {
                                 System.out.println("- No cars in this garage.");
                             }
@@ -181,30 +185,72 @@ public class Main {
                     break;
 
                 case 6:
-                    if (!garages.isEmpty() && !cars.isEmpty()) {
+                    if (!garages.isEmpty()) {
                         System.out.println("Enter the name of the race:");
                         String raceName = scanner.nextLine();
-                        Race newRace = new Race(raceName, 180);
-                        addRandomGarageToRace(newRace, (Set<Garage>) garages);
+
+                        System.out.println("Select garages to participate:");
+                        for (int i = 0; i < garages.size(); i++) {
+                            System.out.println(i + ". " + garages.get(i).getName());
+                        }
+
+                        List<Integer> selectedGarageIndices = new ArrayList<>();
+                        while (selectedGarageIndices.size() < 5) {
+                            int selectedGarageIndex = scanner.nextInt();
+                            scanner.nextLine();
+                            if (selectedGarageIndex >= 0 && selectedGarageIndex < garages.size()) {
+                                selectedGarageIndices.add(selectedGarageIndex);
+                            } else {
+                                System.out.println("Invalid garage selection.");
+                            }
+                        }
+
+                        List<Car> participants = new ArrayList<>();
+                        Random random = new Random();
+                        for (int selectedGarageIndex : selectedGarageIndices) {
+                            Garage selectedGarage = garages.get(selectedGarageIndex);
+                            Car randomCar = selectedGarage.getRandomCar();
+                            participants.add(randomCar);
+                        }
+
+                        Race newRace = new Race(raceName, 180, participants);
                         races.add(newRace);
-                        System.out.println("Race " + raceName + " created.");
+                        createdRaces.put(raceName, newRace);
+
+                        System.out.println("Race " + raceName + " created with participants.");
                     } else {
-                        System.out.println("Create at least one garage and one car before creating a race.");
+                        System.out.println("Create at least one garage before creating a race.");
                     }
                     break;
 
+
                 case 7:
                     if (!races.isEmpty()) {
-                        System.out.println("Enter the index of the race you want to start:");
-                        int raceIndex = scanner.nextInt();
-                        scanner.nextLine();
+                        System.out.println("Enter the name of the race you want to start:");
+                        String raceNameToStart = scanner.nextLine();
 
-                        if (raceIndex >= 0 && raceIndex < races.size()) {
-                            Race selectedRace = races.get(raceIndex);
+
+                        Race selectedRace = null;
+                        for (Race race : races) {
+                            if (race.getName().equals(raceNameToStart)) {
+                                selectedRace = race;
+                                break;
+                            }
+                        }
+
+                        if (selectedRace != null) {
                             selectedRace.startRace();
-                            System.out.println("Race " + selectedRace.getName() + " has started.");
+
+
+                            List<Car> podium = selectedRace.getPodium();
+                            System.out.println("Race " + selectedRace.getName() + " has finished.");
+                            System.out.println("Podium:");
+                            for (int i = 0; i < podium.size(); i++) {
+                                Car car = podium.get(i);
+                                System.out.println((i + 1) + ". Car: " + car.getBrand() + " " + car.getModel() + " from Garage: " + car.getGarageSticker());
+                            }
                         } else {
-                            System.out.println("Invalid race index.");
+                            System.out.println("Race not found.");
                         }
                     } else {
                         System.out.println("No races available. Create a race first.");
@@ -212,27 +258,72 @@ public class Main {
                     break;
 
                 case 8:
-                    if (!races.isEmpty()) {
-                        Tournament selectedTournament = tournaments.get(tournaments.size() - 1);
-                        selectedTournament.simulateTournament();
-                        System.out.println("Tournament " + selectedTournament.getName() + " started.");
+                    if (createdRaces.size() >= 3) {
+                        System.out.println("Enter the name of the tournament:");
+                        String tournamentName = scanner.nextLine();
+
+                        Tournament newTournament = new Tournament(tournamentName, 10);
+                        List<Race> tournamentRaces = new ArrayList<>();
+
+                        for (int i = 0; i < 3; i++) {
+                            System.out.println("Select a race for the tournament:");
+                            for (String raceName : createdRaces.keySet()) {
+                                System.out.println(raceName);
+                            }
+                            String selectedRaceName = scanner.nextLine();
+
+                            Race selectedRace = createdRaces.get(selectedRaceName);
+                            if (selectedRace != null) {
+                                tournamentRaces.add(selectedRace);
+                            } else {
+                                System.out.println("Invalid race selection.");
+                                i--;
+                            }
+                        }
+
+                        newTournament.addRaces(tournamentRaces);
+                        tournaments.add(newTournament);
+
+                        System.out.println("Tournament " + tournamentName + " created with selected races.");
                     } else {
-                        System.out.println("Create at least one tournament before starting.");
+                        System.out.println("Create at least 3 races before creating a tournament.");
                     }
                     break;
 
                 case 9:
-                    if (!races.isEmpty()) {
-                        System.out.println("Enter the name of the tournament:");
-                        String tournamentName = scanner.nextLine();
-                        Tournament newTournament = new Tournament(tournamentName, 10);
-                        newTournament.addRaces(races);
-                        tournaments.add(newTournament);
-                        System.out.println("Tournament " + tournamentName + " created.");
+                    if (!tournaments.isEmpty()) {
+                        System.out.println("Enter the name of the tournament you want to start:");
+                        String tournamentNameToStart = scanner.nextLine();
+
+                        Tournament selectedTournament = null;
+                        for (Tournament tournament : tournaments) {
+                            if (tournament.getName().equalsIgnoreCase(tournamentNameToStart)) {
+                                selectedTournament = tournament;
+                                break;
+                            }
+                        }
+
+                        if (selectedTournament != null) {
+                            selectedTournament.simulateTournament();
+
+                            // Obtener el resultado de las tres carreras del torneo
+                            List<Car> tournamentResults = selectedTournament.getTournamentResults();
+
+                            // Mostrar los tres mejores corredores del torneo
+                            System.out.println("Tournament Results - Top 3:");
+                            for (int i = 0; i < Math.min(tournamentResults.size(), 3); i++) {
+                                Car car = tournamentResults.get(i);
+                                System.out.println((i + 1) + ". Car: " + car.getBrand() + " " + car.getModel() + " (Garage: " + car.getGarageSticker() + ") - Points: " + car.getPoints());
+                            }
+                        } else {
+                            System.out.println("Tournament " + tournamentNameToStart + " not found.");
+                        }
                     } else {
-                        System.out.println("Create at least one race before creating a tournament.");
+                        System.out.println("No tournaments available. Create a tournament first.");
                     }
                     break;
+
+
 
                 case 10:
                     saveToJSON(garages, cars);
@@ -351,7 +442,7 @@ public class Main {
                             String garageSticker = garageName;
                             Car newCar = new Car(brand, model, garageSticker);
                             cars.add(newCar);
-                            existingGarage.addCar(newCar); // Asociar el coche al garaje
+                            existingGarage.addCar(newCar);
                         }
                     }
                 }
@@ -393,11 +484,10 @@ public class Main {
     }
 
 
-    private static void addRandomGarageToRace(Race race, Set<Garage> garages) {
+    private static void addRandomGarageToRace(Race race, List<Garage> garages) {
         if (!garages.isEmpty()) {
             int randomIndex = (int) (Math.random() * garages.size());
-            Garage[] garageArray = garages.toArray(new Garage[0]);
-            Garage randomGarage = garageArray[randomIndex];
+            Garage randomGarage = garages.get(randomIndex);
             race.addGarage(randomGarage);
         } else {
             System.out.println("No garages available. Create at least one garage first.");
